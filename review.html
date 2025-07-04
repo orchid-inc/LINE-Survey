@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <title>クチコミ投稿ページ</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { font-family: sans-serif; background: #f0f2f5; padding: 2em; }
+    .container {
+      max-width: 600px; margin: 0 auto;
+      background: #fff; padding: 2em;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+    textarea { width: 100%; margin-top: 1em; height: 100px; }
+    button {
+      margin-top: 1em;
+      background: #06C755; color: #fff;
+      padding: 1em; border: none;
+      border-radius: 5px;
+      cursor: pointer; width: 100%;
+    }
+    button:hover { background: #04a045; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>クチコミ投稿のご協力お願いします！</h2>
+    <p>以下の文章をコピーしてGoogleクチコミに貼っていただけると嬉しいです。</p>
+    <textarea id="review"></textarea>
+    <button onclick="copyReview()">Googleクチコミに投稿する</button>
+  </div>
+
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const reviewId = urlParams.get('reviewId');
+    console.log("reviewId:", reviewId);
+
+    async function loadReview() {
+      try {
+        const response = await fetch("YOUR_SHEETBEST_API_URL");
+        const data = await response.json();
+        console.log("スプレッドシートデータ:", data);
+        const target = data.find(item => item.reviewId === reviewId);
+        if (target) {
+          document.getElementById("review").value = target.chatgptText;
+        } else {
+          alert("口コミ文が見つかりませんでした。");
+        }
+      } catch (e) {
+        console.error(e);
+        alert("データ取得に失敗しました。");
+      }
+    }
+
+    function copyReview() {
+      const text = document.getElementById("review").value;
+      navigator.clipboard.writeText(text)
+        .then(() => {
+          alert("コピーしました！Googleクチコミで貼り付けてください。");
+          window.open("https://www.google.com/maps/place/YOUR_SHOP_NAME", "_blank");
+        })
+        .catch(() => {
+          alert("コピーに失敗しました。手動でお願いします。");
+        });
+    }
+
+    loadReview();
+  </script>
+</body>
+</html>
