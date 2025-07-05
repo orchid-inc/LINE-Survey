@@ -4,148 +4,63 @@
   <meta charset="utf-8">
   <title>ご来店アンケート</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
   <style>
-    body {
-      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-      background: #f0f2f5;
-      margin: 0;
-      padding: 0;
-    }
-    .container {
-      max-width: 600px;
-      margin: 2em auto;
-      background: #fff;
-      padding: 2em;
-      border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    }
-    h2 {
-      text-align: center;
-      color: #333;
-      margin-bottom: 1.5em;
-    }
-    label {
-      display: block;
-      font-weight: bold;
-      margin-top: 1.2em;
-      color: #333;
-    }
-    .options label {
-      display: block;
-      margin: 0.5em 0;
-      font-weight: normal;
-      color: #555;
-    }
-    button {
-      background: #06C755;
-      color: #fff;
-      border: none;
-      padding: 1em;
-      border-radius: 5px;
-      width: 100%;
-      margin-top: 2em;
-      font-size: 1em;
-      cursor: pointer;
-    }
-    button:hover {
-      background: #04a045;
-    }
-    #thanks {
-      text-align: center;
-      margin-top: 3em;
-      color: #333;
-      display: none;
-    }
+    body { font-family: sans-serif; background:#f0f2f5; margin:0; padding:0; }
+    .container { max-width:600px; margin:2em auto; background:#fff; padding:2em; border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,0.1); }
+    h2 { text-align:center; }
+    label { display:block; margin-top:1em; }
+    button { margin-top:2em; width:100%; padding:1em; background:#06C755; color:white; border:none; border-radius:5px; }
   </style>
+  <script>
+    function sendForm() {
+      const score = document.querySelector('input[name="score"]:checked')?.value || "";
+      const stylist = document.querySelector('input[name="stylist"]:checked')?.value || "";
+      const menus = Array.from(document.querySelectorAll('input[name="menu"]:checked')).map(cb => cb.value).join(",");
+
+      fetch("YOUR_WEBHOOK_URL", {
+        method: "POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify({
+          score: score,
+          stylist: stylist,
+          menus: menus
+        })
+      })
+      .then(() => {
+        alert("アンケートを送信しました！お礼のページに移動します。");
+        window.location.href = "thanks.html";
+      })
+      .catch(() => alert("送信に失敗しました"));
+
+      return false;
+    }
+  </script>
 </head>
 <body>
   <div class="container">
     <h2>ご来店アンケート</h2>
     <form onsubmit="return sendForm();">
-      <label>ご満足度</label>
-      <div class="options">
-        <label><input type="radio" name="score" value="5" required> とても良い</label>
-        <label><input type="radio" name="score" value="4"> 良い</label>
-        <label><input type="radio" name="score" value="3"> 普通</label>
-        <label><input type="radio" name="score" value="2"> 悪い</label>
-        <label><input type="radio" name="score" value="1"> とても悪い</label>
-      </div>
+      <label>満足度</label>
+      <label><input type="radio" name="score" value="5" required> とても良い</label>
+      <label><input type="radio" name="score" value="4"> 良い</label>
+      <label><input type="radio" name="score" value="3"> 普通</label>
+      <label><input type="radio" name="score" value="2"> 悪い</label>
+      <label><input type="radio" name="score" value="1"> とても悪い</label>
 
-      <label>受けたメニュー（複数選択可）</label>
-      <div class="options">
-        <label><input type="checkbox" name="menu" value="カット"> カット</label>
-        <label><input type="checkbox" name="menu" value="カラー"> カラー</label>
-        <label><input type="checkbox" name="menu" value="パーマ"> パーマ</label>
-        <label><input type="checkbox" name="menu" value="トリートメント"> トリートメント</label>
-      </div>
+      <label>メニュー（複数選択OK）</label>
+      <label><input type="checkbox" name="menu" value="カット">カット</label>
+      <label><input type="checkbox" name="menu" value="カラー">カラー</label>
+      <label><input type="checkbox" name="menu" value="パーマ">パーマ</label>
+      <label><input type="checkbox" name="menu" value="トリートメント">トリートメント</label>
 
       <label>担当者</label>
-      <div class="options">
-        <label><input type="radio" name="stylist" value="佐藤" required> 佐藤</label>
-        <label><input type="radio" name="stylist" value="鈴木"> 鈴木</label>
-        <label><input type="radio" name="stylist" value="田中"> 田中</label>
-        <label><input type="radio" name="stylist" value="指名なし" checked> 指名なし</label>
-      </div>
+      <label><input type="radio" name="stylist" value="佐藤" required>佐藤</label>
+      <label><input type="radio" name="stylist" value="鈴木">鈴木</label>
+      <label><input type="radio" name="stylist" value="田中">田中</label>
+      <label><input type="radio" name="stylist" value="指名なし" checked>指名なし</label>
 
       <button type="submit">送信する</button>
     </form>
-
-    <div id="thanks">
-      <h2>ご回答ありがとうございました！</h2>
-      <p>このあとLINEでクーポンをお届けします。<br>LINEのメッセージをご確認ください。</p>
-    </div>
   </div>
-
-  <script>
-    let userId = "";
-
-    async function initializeLiff() {
-      try {
-        await liff.init({ liffId: "2007675182-OQmbePgK" });
-        if (!liff.isLoggedIn()) {
-          liff.login();
-          return;
-        }
-        const profile = await liff.getProfile();
-        userId = profile.userId;
-        console.log("LINE userId:", userId);
-      } catch (e) {
-        console.error("LIFFエラー", e);
-        alert("LINEログインに失敗しました。");
-      }
-    }
-
-    async function sendForm() {
-      const selectedMenus = Array.from(document.querySelectorAll('input[name="menu"]:checked')).map(cb => cb.value);
-      const data = {
-        score: document.querySelector('input[name="score"]:checked')?.value || "",
-        menus: selectedMenus,
-        stylist: document.querySelector('input[name="stylist"]:checked')?.value || "",
-        userId: userId
-      };
-
-      console.log("送信データ:", data);
-
-      fetch("https://hook.us2.make.com/9fuw67wv1efx2hgwokve26l47lteeaio", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data)
-      })
-      .then((res) => {
-        if (!res.ok) throw new Error("サーバーエラー");
-        document.querySelector("form").style.display = "none";
-        document.getElementById("thanks").style.display = "block";
-      })
-      .catch((err) => {
-        console.error(err);
-        alert("送信に失敗しました。もう一度お試しください。");
-      });
-
-      return false;
-    }
-
-    initializeLiff();
-  </script>
 </body>
 </html>
