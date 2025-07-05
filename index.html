@@ -17,7 +17,7 @@
       const stylist = document.querySelector('input[name="stylist"]:checked')?.value || "";
       const menus = Array.from(document.querySelectorAll('input[name="menu"]:checked')).map(cb => cb.value).join(",");
 
-      fetch("YOUR_WEBHOOK_URL", {
+      fetch("https://hook.us2.make.com/9fuw67wv1efx2hgwokve26l47lteeaio", {
         method: "POST",
         headers: {"Content-Type":"application/json"},
         body: JSON.stringify({
