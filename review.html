@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>クチコミ例文</title>
+  <title>クーポン & クチコミ例文</title>
   <style>
     body { font-family:sans-serif; background:#f0f2f5; margin:0; padding:20px; }
     .container { background:#fff; padding:20px; border-radius:8px; max-width:480px; margin:auto; }
@@ -13,12 +13,15 @@
       border-radius:5px; cursor:pointer;
     }
     button:hover { background:#04a045; }
+    .coupon { margin-top:1em; font-size:1.2em; background:#ffeb3b; padding:10px; border-radius:5px; text-align:center; }
+    .review { white-space:pre-line; margin-top:1.5em; }
   </style>
 </head>
 <body>
   <div class="container">
-    <h2>クーポン & クチコミ例文</h2>
-    <div class="coupon">🎉 10%OFFクーポン: ABC123 🎉</div>
+    <h2>アンケートありがとうございました！</h2>
+    <div class="coupon">🎉 次回10%OFFクーポン: ABC123 🎉</div>
+    <h3>Googleクチコミ投稿用例文</h3>
     <div id="review">口コミ文章を取得中...</div>
     <button id="copyBtn" style="display:none;">コピーしてGoogleクチコミへ</button>
   </div>
@@ -28,7 +31,7 @@
     const reviewId = params.get("reviewId");
 
     if (!reviewId) {
-      document.getElementById("review").innerText = "reviewIdがありません";
+      document.getElementById("review").innerText = "reviewIdが見つかりません";
     } else {
       fetch("https://hook.us2.make.com/ld07ipbus1hyy70cvk7lk1246pp8doti", {
         method: "POST",
