@@ -1,45 +1,67 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="utf-8">
-  <title>口コミ例文の確認</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>アンケートご協力ありがとうございます！</title>
   <style>
     body { font-family:sans-serif; background:#f0f2f5; margin:0; padding:0; }
     .container { max-width:600px; margin:2em auto; background:#fff; padding:2em; border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,0.1); }
     h2 { text-align:center; }
-    #review { white-space: pre-line; margin-top:1em; }
-    button { margin-top:1em; width:100%; padding:1em; background:#06C755; color:white; border:none; border-radius:5px; }
+    .coupon { margin-top:1em; font-size:1.2em; background:#ffeb3b; padding:10px; border-radius:5px; text-align:center; }
+    .review { white-space:pre-line; margin-top:1.5em; }
+    button {
+      margin-top:1em; width:100%; padding:1em;
+      background:#06C755; color:white; border:none;
+      border-radius:5px; cursor:pointer;
+    }
+    button:hover { background:#04a045; }
   </style>
 </head>
 <body>
   <div class="container">
-    <h2>Googleクチコミ投稿例文</h2>
-    <div id="review">読み込み中...</div>
+    <h2>アンケートご協力ありがとうございます！</h2>
+    <div class="coupon">
+      🎉 10%OFFクーポン: ABC123 🎉
+    </div>
+    <h3>Googleクチコミ投稿用例文</h3>
+    <div id="review">口コミ文章を取得中...</div>
     <button id="copyBtn" style="display:none;">コピーしてGoogleクチコミへ</button>
   </div>
 
   <script>
     const params = new URLSearchParams(location.search);
-    const reviewId = params.get("テスト");
+    const reviewId = params.get("reviewId");
 
-    fetch("https://hook.us2.make.com/ld07ipbus1hyy70cvk7lk1246pp8doti", {
-      method: "POST",
-      headers: {"Content-Type":"application/json"},
-      body: JSON.stringify({ reviewId: reviewId })
-    })
-    .then(response => response.json())
-    .then(data => {
-      document.getElementById("review").innerText = data.exampleText;
-      document.getElementById("copyBtn").style.display = "block";
-      document.getElementById("copyBtn").onclick = () => {
-        navigator.clipboard.writeText(data.exampleText);
-        window.open("https://www.google.co.jp/maps/place/ほまれの家+大垣店/@35.3571877,136.5988806,17z/data=!3m1!5s0x6003b1573a2bb7a1:0x398e43f89b23d0a9!4m8!3m7!1s0x6003b18713b956c5:0xd6a3493f77aa6725!8m2!3d35.3571877!4d136.6014555!9m1!1b1!16s%2Fg%2F11vxlnzmq6?entry=ttu&g_ep=EgoyMDI1MDYzMC4wIKXMDSoASAFQAw%3D%3D", "_blank");
-      };
-    })
-    .catch(() => {
-      document.getElementById("review").innerText = "口コミ文章の取得に失敗しました";
-    });
+    if (!reviewId) {
+      document.getElementById("review").innerText = "reviewIdが見つかりません";
+    } else {
+      fetch("https://hook.us2.make.com/ld07ipbus1hyy70cvk7lk1246pp8doti", {
+        method: "POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify({ reviewId: reviewId })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.exampleText) {
+          document.getElementById("review").innerText = data.exampleText;
+          document.getElementById("copyBtn").style.display = "block";
+
+          document.getElementById("copyBtn").addEventListener("click", () => {
+            navigator.clipboard.writeText(data.exampleText).then(() => {
+              alert("コピーしました！Googleクチコミページに移動します。");
+              window.open("https://www.google.co.jp/maps/place/ほまれの家+大垣店/@35.3571877,136.5988806,17z/data=!3m1!5s0x6003b1573a2bb7a1:0x398e43f89b23d0a9!4m8!3m7!1s0x6003b18713b956c5:0xd6a3493f77aa6725!8m2!3d35.3571877!4d136.6014555!9m1!1b1!16s%2Fg%2F11vxlnzmq6?entry=ttu&g_ep=EgoyMDI1MDYzMC4wIKXMDSoASAFQAw%3D%3D", "_blank");
+            });
+          });
+        } else {
+          document.getElementById("review").innerText = "口コミ例文の取得に失敗しました";
+        }
+      })
+      .catch(err => {
+        console.error(err);
+        document.getElementById("review").innerText = "口コミ例文の取得に失敗しました";
+      });
+    }
   </script>
 </body>
 </html>
