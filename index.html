@@ -1,66 +1,58 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="utf-8">
-  <title>ご来店アンケート</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>アンケート</title>
   <style>
-    body { font-family: sans-serif; background:#f0f2f5; margin:0; padding:0; }
-    .container { max-width:600px; margin:2em auto; background:#fff; padding:2em; border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,0.1); }
-    h2 { text-align:center; }
-    label { display:block; margin-top:1em; }
-    button { margin-top:2em; width:100%; padding:1em; background:#06C755; color:white; border:none; border-radius:5px; }
+    body { font-family:sans-serif; background:#f0f2f5; margin:0; padding:20px; }
+    .container { background:#fff; padding:20px; border-radius:8px; max-width:480px; margin:auto; }
+    button {
+      margin-top:1em; width:100%; padding:1em;
+      background:#06C755; color:white; border:none;
+      border-radius:5px; cursor:pointer;
+    }
+    button:hover { background:#04a045; }
   </style>
+</head>
+<body>
+  <div class="container">
+    <h2>アンケート</h2>
+    <form onsubmit="return sendForm();">
+      <label>満足度</label><br>
+      <input type="radio" name="score" value="5" required>5
+      <input type="radio" name="score" value="4">4
+      <input type="radio" name="score" value="3">3
+      <input type="radio" name="score" value="2">2
+      <input type="radio" name="score" value="1">1
+      <br><br>
+      <button type="submit">送信する</button>
+    </form>
+  </div>
+
   <script>
-    function sendForm() {
+    async function sendForm() {
       const score = document.querySelector('input[name="score"]:checked')?.value || "";
-      const stylist = document.querySelector('input[name="stylist"]:checked')?.value || "";
-      const menus = Array.from(document.querySelectorAll('input[name="menu"]:checked')).map(cb => cb.value).join(",");
+      const data = { score: score };
 
       fetch("https://hook.us2.make.com/9fuw67wv1efx2hgwokve26l47lteeaio", {
         method: "POST",
         headers: {"Content-Type":"application/json"},
-        body: JSON.stringify({
-          score: score,
-          stylist: stylist,
-          menus: menus
-        })
+        body: JSON.stringify(data)
       })
-      .then(() => {
-        alert("アンケートを送信しました！お礼のページに移動します。");
-        window.location.href = "review.html?reviewId=${reviewId}";
+      .then(res => res.json())
+      .then(data => {
+        console.log("レスポンス:", data);
+        const reviewId = data.reviewId;
+        window.location.href = `review.html?reviewId=${reviewId}`;
       })
-      .catch(() => alert("送信に失敗しました"));
+      .catch(err => {
+        console.error(err);
+        alert("送信に失敗しました");
+      });
 
       return false;
     }
   </script>
-</head>
-<body>
-  <div class="container">
-    <h2>ご来店アンケート</h2>
-    <form onsubmit="return sendForm();">
-      <label>満足度</label>
-      <label><input type="radio" name="score" value="5" required> とても良い</label>
-      <label><input type="radio" name="score" value="4"> 良い</label>
-      <label><input type="radio" name="score" value="3"> 普通</label>
-      <label><input type="radio" name="score" value="2"> 悪い</label>
-      <label><input type="radio" name="score" value="1"> とても悪い</label>
-
-      <label>メニュー（複数選択OK）</label>
-      <label><input type="checkbox" name="menu" value="カット">カット</label>
-      <label><input type="checkbox" name="menu" value="カラー">カラー</label>
-      <label><input type="checkbox" name="menu" value="パーマ">パーマ</label>
-      <label><input type="checkbox" name="menu" value="トリートメント">トリートメント</label>
-
-      <label>担当者</label>
-      <label><input type="radio" name="stylist" value="佐藤" required>佐藤</label>
-      <label><input type="radio" name="stylist" value="鈴木">鈴木</label>
-      <label><input type="radio" name="stylist" value="田中">田中</label>
-      <label><input type="radio" name="stylist" value="指名なし" checked>指名なし</label>
-
-      <button type="submit">送信する</button>
-    </form>
-  </div>
 </body>
 </html>
