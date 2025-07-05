@@ -17,15 +17,30 @@
 </head>
 <body>
   <div class="container">
-    <h2>アンケート</h2>
+    <h2>ご来店アンケート</h2>
     <form onsubmit="return sendForm();">
       <label>満足度</label><br>
-      <input type="radio" name="score" value="5" required>5
-      <input type="radio" name="score" value="4">4
-      <input type="radio" name="score" value="3">3
-      <input type="radio" name="score" value="2">2
-      <input type="radio" name="score" value="1">1
+      <input type="radio" name="score" value="5" required>とても良い
+      <input type="radio" name="score" value="4">良い
+      <input type="radio" name="score" value="3">普通
+      <input type="radio" name="score" value="2">悪い
+      <input type="radio" name="score" value="1">とても悪い
       <br><br>
+
+      <label>受けたメニュー（複数選択可）</label><br>
+      <input type="checkbox" name="menu" value="カット">カット
+      <input type="checkbox" name="menu" value="カラー">カラー
+      <input type="checkbox" name="menu" value="パーマ">パーマ
+      <input type="checkbox" name="menu" value="トリートメント">トリートメント
+      <br><br>
+
+      <label>担当者</label><br>
+      <input type="radio" name="stylist" value="佐藤" required>佐藤
+      <input type="radio" name="stylist" value="鈴木">鈴木
+      <input type="radio" name="stylist" value="田中">田中
+      <input type="radio" name="stylist" value="指名なし">指名なし
+      <br><br>
+
       <button type="submit">送信する</button>
     </form>
   </div>
@@ -33,7 +48,14 @@
   <script>
     async function sendForm() {
       const score = document.querySelector('input[name="score"]:checked')?.value || "";
-      const data = { score: score };
+      const selectedMenus = Array.from(document.querySelectorAll('input[name="menu"]:checked')).map(cb => cb.value);
+      const stylist = document.querySelector('input[name="stylist"]:checked')?.value || "";
+
+      const data = {
+        score: score,
+        menus: selectedMenus,
+        stylist: stylist
+      };
 
       fetch("https://hook.us2.make.com/9fuw67wv1efx2hgwokve26l47lteeaio", {
         method: "POST",
