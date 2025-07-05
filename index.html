@@ -4,8 +4,14 @@
   <meta charset="utf-8">
   <title>ご来店アンケート</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
   <style>
-    body { font-family: sans-serif; background: #f0f2f5; margin: 0; padding: 0; }
+    body {
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      background: #f0f2f5;
+      margin: 0;
+      padding: 0;
+    }
     .container {
       max-width: 600px;
       margin: 2em auto;
@@ -14,41 +20,44 @@
       border-radius: 8px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     }
-    h2 { text-align: center; color: #333; margin-bottom: 1.5em; }
-    label { display: block; font-weight: bold; margin-top: 1em; color: #333; }
-    .options label { display: block; margin: 0.5em 0; font-weight: normal; color: #555; }
+    h2 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 1.5em;
+    }
+    label {
+      display: block;
+      font-weight: bold;
+      margin-top: 1.2em;
+      color: #333;
+    }
+    .options label {
+      display: block;
+      margin: 0.5em 0;
+      font-weight: normal;
+      color: #555;
+    }
     button {
-      background: #06C755; color: #fff; border: none;
-      padding: 1em; border-radius: 5px; width: 100%;
-      margin-top: 2em; font-size: 1em; cursor: pointer;
+      background: #06C755;
+      color: #fff;
+      border: none;
+      padding: 1em;
+      border-radius: 5px;
+      width: 100%;
+      margin-top: 2em;
+      font-size: 1em;
+      cursor: pointer;
     }
-    button:hover { background: #04a045; }
+    button:hover {
+      background: #04a045;
+    }
+    #thanks {
+      text-align: center;
+      margin-top: 3em;
+      color: #333;
+      display: none;
+    }
   </style>
-  <script>
-    function generateUUID() {
-      return ([1e7]+-1e3+-4e3+-8e3+-1e11)
-        .replace(/[018]/g, c =>
-          (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
-        );
-    }
-
-    function sendForm() {
-      const selectedMenus = Array.from(document.querySelectorAll('input[name="menu"]:checked')).map(cb => cb.value);
-      const score = document.querySelector('input[name="score"]:checked')?.value || "";
-      const stylist = document.querySelector('input[name="stylist"]:checked')?.value || "";
-      const reviewId = generateUUID();
-
-      const params = new URLSearchParams({
-        score: score,
-        menus: selectedMenus.join(","),
-        stylist: stylist,
-        reviewId: reviewId
-      });
-
-      window.location.href = `review.html?${params.toString()}`;
-      return false;
-    }
-  </script>
 </head>
 <body>
   <div class="container">
@@ -81,6 +90,62 @@
 
       <button type="submit">送信する</button>
     </form>
+
+    <div id="thanks">
+      <h2>ご回答ありがとうございました！</h2>
+      <p>このあとLINEでクーポンをお届けします。<br>LINEのメッセージをご確認ください。</p>
+    </div>
   </div>
+
+  <script>
+    let userId = "";
+
+    async function initializeLiff() {
+      try {
+        await liff.init({ liffId: "2007675182-v8mnRZ35" });
+        if (!liff.isLoggedIn()) {
+          liff.login();
+          return;
+        }
+        const profile = await liff.getProfile();
+        userId = profile.userId;
+        console.log("LINE userId:", userId);
+      } catch (e) {
+        console.error("LIFFエラー", e);
+        alert("LINEログインに失敗しました。");
+      }
+    }
+
+    async function sendForm() {
+      const selectedMenus = Array.from(document.querySelectorAll('input[name="menu"]:checked')).map(cb => cb.value);
+      const data = {
+        score: document.querySelector('input[name="score"]:checked')?.value || "",
+        menus: selectedMenus,
+        stylist: document.querySelector('input[name="stylist"]:checked')?.value || "",
+        userId: userId
+      };
+
+      console.log("送信データ:", data);
+
+      fetch("https://hook.us2.make.com/9fuw67wv1efx2hgwokve26l47lteeaio", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+      })
+      .then((res) => {
+        if (!res.ok) throw new Error("サーバーエラー");
+        document.querySelector("form").style.display = "none";
+        document.getElementById("thanks").style.display = "block";
+      })
+      .catch((err) => {
+        console.error(err);
+        alert("送信に失敗しました。もう一度お試しください。");
+      });
+
+      return false;
+    }
+
+    initializeLiff();
+  </script>
 </body>
 </html>
