@@ -28,7 +28,7 @@
       })
       .then(() => {
         alert("アンケートを送信しました！お礼のページに移動します。");
-        window.location.href = "thanks.html";
+        window.location.href = "review.html?reviewId=${reviewId}";
       })
       .catch(() => alert("送信に失敗しました"));
 
